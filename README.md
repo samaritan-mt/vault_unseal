@@ -8,3 +8,22 @@ This script fits a very specific need; to automatically unseal a secondary (Tran
   - A token issued to the server running the Transit Vault which has access to the KV secret location where the unseal keys are stored
 
 You can modify this script easily to use fewer unseal keys if your shamir key share is less than 5 (or more)
+
+How it works / installation
+This requires Vault to be started by a systemd-unit named vault.service, which typically is the case when installing from a distribution package. The script vault-unseal.sh should be placed in /root and secured with 700 permissions.
+Place the required unseal-key in that script as well. This example assumes Vault can be unsealed using just one key.
+When executed, it will perform the necessary POST unseal-request to the Vault instance that is running on 127.0.0.1:8200.
+
+Store the unit-file vault-unseal.service in /etc/systemd/system, then execute:
+
+systemctl daemon-reload
+systemctl enable vault-unseal.service
+Now whenever the system boots or Vault is restarted, the vault-unseal-unit will automatically be started.
+It will unseal the Vault with a delay of 10 seconds.
+
+Further thoughts about security
+Obviously the vault-unseal.sh script contains the unseal-key in plaintext, which is really bad.
+However, it should only be accessible by root. And if an attacker already has that level of access, he probably also will be able to spawn a malicious service that intercepts / forwards regular unseal-requests anyways.
+Since he is root he can just use the same certificate / key that Vault is using and nobody would notice the keys are being leaked.
+
+vault-unseal.service
