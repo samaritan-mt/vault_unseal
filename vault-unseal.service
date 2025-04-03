@@ -1,0 +1,17 @@
+[Unit]
+Description=Vault Unseal
+After=vault.service
+Requires=vault.service
+PartOf=vault.service
+
+[Service]
+Type=oneshot
+User=root
+ExecStartPre=/bin/sleep 10
+ExecStart=/bin/sh -c '/root/vault-unseal.sh'
+RemainAfterExit=false
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target vault.service
