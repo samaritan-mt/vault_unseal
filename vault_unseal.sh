@@ -2,7 +2,7 @@
 #Set the address to the Transit Vault (or vault you wish to unlock automatically)
 #Check Transit Vault seal status
 yum install jq &>/dev/null
-vault_status=$(vault status -format "json" | jq --raw-output '.sealed')
+vault_status=$(su - admin -c 'vault status -format "json"' | jq --raw-output '.sealed')
 if [[ $vault_status == 'false' ]]; then
         :
 elif [[ $vault_status == 'true' ]]; then
@@ -13,8 +13,8 @@ elif [[ $vault_status == 'true' ]]; then
         i=1
         while [[ $vault_status == 'true' ]];
                 do
-                vault operator unseal ${keys[key$i]} &>/dev/null
-                vault_status=$( vault status -format "json" | jq --raw-output '.sealed')
+                su - admin -c 'vault operator unseal ${keys[key$i]}' &>/dev/null
+                vault_status=$( su - admin -c 'vault status -format "json"' | jq --raw-output '.sealed')
                 i=$[$i+1]
         done
 else
